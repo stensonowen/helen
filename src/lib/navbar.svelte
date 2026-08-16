@@ -119,7 +119,7 @@
             <div class="flex items-center justify-center px-2">
                 <a class="text-gray-200 cursor-pointer text-lg xl:text-2xl whitespace-nowrap"
                     href={`${base}/`} onclick={() => (open = false)}>
-                    Helenic Philosophy
+                    Helen Eleonora
                 </a>
             </div>
 
