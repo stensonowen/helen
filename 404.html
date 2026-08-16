@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="/helen/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title> Helenic Philosophy </title>
+        <link href="/helen/_app/immutable/entry/start.3njBnPEa.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/BwYS9mfr.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/CT0dPk8j.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/CNdHUX3o.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/DpPAV42p.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/entry/app.HsGz_A56.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/D472Xq_4.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/vdvC5q40.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/D0E95UgQ.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/SuNmDB6A.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/nodes/0.BNJ7wBTt.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/De7QvE6z.js" rel="modulepreload">
+		<link href="/helen/_app/immutable/chunks/Os2mh7mx.js" rel="modulepreload">
+		
+		<link href="/helen/_app/immutable/assets/0.Da3oyODU.css" rel="stylesheet">
+		<link href="/helen/_app/immutable/assets/all.CHPBLAj2.css" rel="stylesheet">
+    </head>
+    <body data-sveltekit-preload-data="hover">
+        <script>
+            // Set the theme before anything paints, so a dark-mode visitor never sees a
+            // flash of the light background. The navbar's sun/moon buttons write the
+            // stored value; with nothing stored we follow the browser's preference.
+            try {
+                const stored = localStorage.getItem('theme');
+                const dark = stored
+                    ? stored === 'dark'
+                    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (dark) document.body.classList.add('dark');
+            } catch {
+                // Private-browsing modes can make localStorage throw; light theme is fine.
+            }
+        </script>
+        <div style="display: contents">
+			<script>
+				{
+					__sveltekit_6oaq8g = {
+						base: "/helen",
+						assets: "/helen"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/helen/_app/immutable/entry/start.3njBnPEa.js"),
+						import("/helen/_app/immutable/entry/app.HsGz_A56.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+    </body>
+</html>
