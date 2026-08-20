@@ -1,10 +1,11 @@
 <script lang="ts">
     import { base } from '$app/paths';
     import '@fortawesome/fontawesome-free/css/all.min.css';
-
     import type { Entry } from '$lib/files';
 
-    let { path = '', entries = [] }: { path?: string; entries?: Entry[] } = $props();
+    // Both required: every caller is generated, so a missing prop is a bug worth
+    // catching at compile time rather than rendering an empty page.
+    let { path, entries }: { path: string; entries: Entry[] } = $props();
 
     // Font Awesome glyph per file type. Anything unrecognised falls back to a
     // plain page icon rather than nothing, so the rows stay aligned.
@@ -21,11 +22,11 @@
         mp4: 'fa-file-video', mov: 'fa-file-video'
     };
 
-    // Encode per segment: encodeURI on a whole path would leave `?` and `#`
-    // intact, so a stray one would truncate the URL into a query or fragment.
+    // Encode per segment, so that the `/` separators survive while spaces and
+    // non-ASCII in each name are escaped.
     //
-    // encodeURIComponent alone over-encodes, though. It escapes the sub-delims
-    // `!'()*,`, which RFC 3986 allows unescaped in a path segment and which
+    // encodeURIComponent over-encodes, though: it escapes the sub-delims
+    // `!'()*,`, which RFC 3986 allows raw in a path segment and which
     // SvelteKit's static-asset manifest stores raw -- so `O'Brien (2024), x.pdf`
     // would be linked as `%27`/`%28`/`%2C` and fail to match the real file.
     // Put those six back.
@@ -94,7 +95,7 @@
                                 class="fa-solid w-5 shrink-0 text-center text-gray-400
                                     {entry.kind === 'dir'
                                     ? 'fa-folder'
-                                    : (icons[entry.ext ?? ''] ?? 'fa-file')}"
+                                    : (icons[entry.ext] ?? 'fa-file')}"
                                 aria-hidden="true"
                             ></i>
                             <a

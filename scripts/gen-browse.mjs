@@ -1,69 +1,65 @@
-// Generates one ordinary static route per directory under `static/files/`.
+// Generates one ordinary static route per folder under `static/files/`, so the
+// document archive gets browsable listing pages.
 //
-// Why generate routes instead of using a single `[...path]` rest route: a rest
+// Why generate routes rather than use a single `[...path]` rest route: a rest
 // route does not compose with this site's `paths.relative` prerendering. The
-// prerenderer feeds phantom URLs back into the route and recurses, producing
-// pages with ~2000-character parameters -- and hanging outright under
-// `trailingSlash: 'always'`. Plain static routes are just pages, like /about,
-// so none of that can happen. They also get the site's layout, styling and
-// dark mode for free, which hand-written HTML would not.
+// prerenderer resolves the listings' relative hrefs against the wrong base,
+// feeds the resulting phantom URLs back into the route, and recurses -- emitting
+// pages with ~2000-character parameters, and hanging outright under
+// `trailingSlash: 'always'`. Plain static routes cannot be fed back into
+// themselves, and they inherit the site layout, styling and dark mode for free.
 //
-// Output is gitignored and rebuilt by `npm run dev`, `npm run build` and
-// `npm run check`.
+// Everything it writes lives under src/routes/browse/, which is gitignored and
+// deleted at the start of every run. Do not put hand-written routes there; any
+// other route in src/routes/ is unaffected by this script.
 //
-// This runs once, at startup. `vite dev` will not notice documents added to or
-// removed from static/files/ while it is running -- restart it to pick them up.
+// Runs at the start of `npm run dev`, `npm run build` and `npm run check`, once
+// each time: `vite dev` will not notice documents added to or removed from
+// static/files/ while it is running. Restart it to pick them up.
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { NAME_RULES, allDirs, collectViolations, readDir } from './file-tree.mjs';
+import { NAME_RULES, readTree } from './file-tree.mjs';
 
 const OUT = path.join(process.cwd(), 'src', 'routes', 'browse');
 
-// Embedded in a <script> block, so `</script>` inside a filename would close it
-// early. Escaping every `<` keeps the JSON valid and inert.
-//
-// Everything outside printable ASCII is escaped too. Filenames legitimately
-// contain accents and CJK, but they can also carry bidirectional control
-// characters (U+202E and friends) that reorder how the surrounding source is
-// displayed, so a reviewer opening this file would be shown something other
-// than what it says. `\uXXXX` escapes are the same string at runtime and read
-// unambiguously.
-//
-// Note this does not silence Svelte's bidirectional_control_characters warning:
-// that check inspects the decoded string value, not the source bytes, so a
-// document whose name contains one still warns on every `npm run check`. It is
-// a warning, not an error. `displayName` in file-tree.mjs handles the part that
-// actually matters -- what the visitor sees.
+/**
+ * Serialise data for embedding in a `<script>` block.
+ *
+ * `</script>` inside a filename would close the block early, so every `<` is
+ * escaped. Everything above printable ASCII is escaped too: accents and CJK are
+ * perfectly legal in a document name, and `\uXXXX` keeps the generated file
+ * readable as plain ASCII without changing the string at runtime.
+ *
+ * @param {unknown} value
+ */
 const embed = (value) =>
     JSON.stringify(value).replace(
         /[<\u007f-\uffff]/g,
         (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`
     );
 
-// Reject unpublishable names before generating anything. Skipping them would
-// mean a document silently never appears on the site, which is a worse failure
-// than a build that stops and says why. Everything is reported at once so a
-// rename pass can fix the lot in one go.
-const violations = collectViolations();
+const { listings, violations } = readTree();
+
+// Refuse to publish an unusable name rather than skipping it: a document that
+// silently never appears is a worse failure than a build that stops and says
+// why. Everything is reported at once, so one rename pass can fix the lot.
 if (violations.length > 0) {
-    const line = (v) => `  static/files/${v.path}${v.kind === 'dir' ? '/' : ''}`;
-    const dirs = violations.filter((v) => v.kind === 'dir');
-    const files = violations.filter((v) => v.kind === 'file');
-    console.error(
-        `\ngen-browse: ${violations.length} name${violations.length === 1 ? '' : 's'} ` +
-            `cannot be published.\n`
-    );
-    if (dirs.length) {
-        console.error(`Folder names must start with a letter or digit and use only`);
-        console.error(`${NAME_RULES.dir} --`);
-        dirs.forEach((v) => console.error(line(v)));
-        console.error('');
-    }
-    if (files.length) {
-        console.error(`File names must start with a letter or digit and use only`);
-        console.error(`${NAME_RULES.file} --`);
-        files.forEach((v) => console.error(line(v)));
+    const groups = [
+        ['dir', `Folder names must start with a letter or digit and use only\n${NAME_RULES.dir}`],
+        ['file', `File names must start with a letter or digit and use only\n${NAME_RULES.file}`],
+        ['symlink', 'Symlinks are not published, because they can point outside the archive']
+    ];
+
+    const n = violations.length;
+    console.error(`\ngen-browse: ${n} name${n === 1 ? '' : 's'} cannot be published.\n`);
+    for (const [kind, explanation] of groups) {
+        const group = violations.filter((v) => v.kind === kind);
+        if (group.length === 0) continue;
+        console.error(`${explanation} --`);
+        for (const v of group) {
+            console.error(`  static/files/${v.path}${v.kind === 'dir' ? '/' : ''}`);
+        }
         console.error('');
     }
     console.error('Rename them and run the build again. Accents and non-Latin');
@@ -73,27 +69,22 @@ if (violations.length > 0) {
 
 fs.rmSync(OUT, { recursive: true, force: true });
 
-// `allDirs()` is empty when static/files/ does not exist yet; the root listing
-// still has to exist, or the nav link to it 404s and fails the build.
-const dirs = allDirs();
-if (!dirs.includes('')) dirs.unshift('');
-for (const dir of dirs) {
-    // Directory names that SvelteKit would read as route syntax are filtered
-    // out by the walker, so every segment here is safe to use verbatim.
+for (const [dir, entries] of listings) {
+    // Folder names SvelteKit would read as route syntax are rejected above, so
+    // every segment here is safe to use verbatim.
     const target = dir ? path.join(OUT, ...dir.split('/')) : OUT;
     fs.mkdirSync(target, { recursive: true });
-
-    const data = { path: dir, entries: readDir(dir) ?? [] };
     fs.writeFileSync(
         path.join(target, '+page.svelte'),
-        `<!-- Generated by scripts/gen-browse.mjs. Do not edit; your changes will be overwritten. -->\n` +
-            `<script lang="ts">\n` +
-            `    import Listing from '$lib/listing.svelte';\n` +
-            `    import type { Entry } from '$lib/files';\n` +
-            `    const data: { path: string; entries: Entry[] } = ${embed(data)};\n` +
-            `</script>\n\n` +
-            `<Listing path={data.path} entries={data.entries} />\n`
+        '<!-- Generated by scripts/gen-browse.mjs. Do not edit; it is overwritten. -->\n' +
+            '<script lang="ts">\n' +
+            "    import Listing from '$lib/listing.svelte';\n" +
+            "    import type { Entry } from '$lib/files';\n" +
+            `    const path: string = ${embed(dir)};\n` +
+            `    const entries: Entry[] = ${embed(entries)};\n` +
+            '</script>\n\n' +
+            '<Listing {path} {entries} />\n'
     );
 }
 
-console.log(`gen-browse: ${dirs.length} listing page${dirs.length === 1 ? '' : 's'}`);
+console.log(`gen-browse: ${listings.size} listing page${listings.size === 1 ? '' : 's'}`);
