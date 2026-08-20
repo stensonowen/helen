@@ -1,6 +1,10 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
+// Empty locally; set to `/<repo>` by CI so the site works under GitHub Pages'
+// subdirectory. Used for `paths.base` and to recognise document URLs below.
+const base = process.env.BASE_PATH || '';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
@@ -22,7 +26,14 @@ const config = {
             strict: true
         }),
         paths: {
-            base: process.env.BASE_PATH || ''
+            base
+        },
+        prerender: {
+            // Defaults everywhere: `handleHttpError` and `handleMissingId` both
+            // fail the build, which is what catches a typo in a route name or in
+            // a Contents section id. The document links are covered too, because
+            // scripts/file-tree.mjs rejects any name containing a character the
+            // crawler would misread.
         }
     }
 };
