@@ -10,10 +10,15 @@ import path from 'node:path';
 
 /**
  * @typedef {import('../src/lib/files.js').Entry} Entry
- * @typedef {{ path: string, kind: 'dir' | 'file' | 'symlink' }} Violation
+ *
+ * Something in the archive that cannot be published. `gen-browse.mjs` turns
+ * these into the build error, one section per `kind`.
+ * @typedef {{ path: string, kind: 'dir' | 'file' | 'symlink' | 'long' }} Violation
  */
 
-const ROOT = path.join(process.cwd(), 'static', 'files');
+// Resolved from this file's location rather than process.cwd(), so the script
+// behaves the same however it is invoked.
+const ROOT = path.join(import.meta.dirname, '..', 'static', 'files');
 
 // The folder's own instructions, which would be noise in its listing.
 const HIDDEN = new Set(['README.md']);
@@ -49,10 +54,17 @@ const hidden = (name) => name.startsWith('.') || HIDDEN.has(name);
 const SAFE_DIR = /^[\p{L}\p{N}][\p{L}\p{N}\p{M} ._-]*$/u;
 const SAFE_FILE = /^[\p{L}\p{N}][\p{L}\p{N}\p{M} ._(),'-]*$/u;
 
+// Windows refuses paths over 260 characters unless long-path support is turned
+// on, and a clone that fails there is far harder to diagnose than a build that
+// says which name is too long. The limit is on the archive-relative path, which
+// leaves ample room for the repository location and the generated route path.
+const MAX_PATH = 180;
+
 /** Plain-English form of the two patterns above, for the build error. */
 export const NAME_RULES = {
     dir: 'letters, digits, spaces, and . - _',
-    file: "letters, digits, spaces, and . - _ ( ) ' ,"
+    file: "letters, digits, spaces, and . - _ ( ) ' ,",
+    long: `paths under ${MAX_PATH} characters, counted from static/files/`
 };
 
 /**
@@ -71,7 +83,9 @@ function formatBytes(bytes) {
         n /= 1024;
         i++;
     }
-    return `${round(n)} ${units[i]}`;
+    // One decimal below 10, none above -- `1.0 KB`, `1.5 KB`, `12 KB`. Formatted
+    // here rather than reusing `round`, whose Number() drops the trailing zero.
+    return `${n < 10 ? n.toFixed(1) : Math.round(n)} ${units[i]}`;
 }
 
 /**
@@ -124,7 +138,9 @@ function walk(rel, listings, violations) {
         // resolving it. Following one could walk out of the archive entirely,
         // but silently dropping it would publish the target at its /files/ URL
         // while leaving it out of the listing, so report it instead.
-        if (d.isSymbolicLink()) {
+        if (childRel.length > MAX_PATH) {
+            violations.push({ path: childRel, kind: 'long' });
+        } else if (d.isSymbolicLink()) {
             violations.push({ path: childRel, kind: 'symlink' });
         } else if (d.isDirectory()) {
             if (!SAFE_DIR.test(d.name)) {

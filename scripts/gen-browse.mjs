@@ -21,7 +21,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { NAME_RULES, readTree } from './file-tree.mjs';
 
-const OUT = path.join(process.cwd(), 'src', 'routes', 'browse');
+/** @typedef {import('./file-tree.mjs').Violation} Violation */
+
+// Resolved from this file's location rather than process.cwd(), so the script
+// behaves the same however it is invoked.
+const OUT = path.join(import.meta.dirname, '..', 'src', 'routes', 'browse');
 
 /**
  * Serialise data for embedding in a `<script>` block.
@@ -45,10 +49,28 @@ const { listings, violations } = readTree();
 // silently never appears is a worse failure than a build that stops and says
 // why. Everything is reported at once, so one rename pass can fix the lot.
 if (violations.length > 0) {
+    const nameNote =
+        '  Accents and non-Latin scripts are fine; punctuation that means\n' +
+        '  something in a URL is not.';
+
+    /** @type {[Violation['kind'], string][]} */
     const groups = [
-        ['dir', `Folder names must start with a letter or digit and use only\n${NAME_RULES.dir}`],
-        ['file', `File names must start with a letter or digit and use only\n${NAME_RULES.file}`],
-        ['symlink', 'Symlinks are not published, because they can point outside the archive']
+        [
+            'dir',
+            `Folder names must start with a letter or digit and use only\n  ${NAME_RULES.dir}\n` +
+                nameNote
+        ],
+        [
+            'file',
+            `File names must start with a letter or digit and use only\n  ${NAME_RULES.file}\n` +
+                nameNote
+        ],
+        ['symlink', 'Symlinks are not published: they can point outside the archive.'],
+        [
+            'long',
+            'These paths are too long to survive a checkout on Windows.\n' +
+                `  Keep ${NAME_RULES.long}.`
+        ]
     ];
 
     const n = violations.length;
@@ -56,14 +78,13 @@ if (violations.length > 0) {
     for (const [kind, explanation] of groups) {
         const group = violations.filter((v) => v.kind === kind);
         if (group.length === 0) continue;
-        console.error(`${explanation} --`);
+        console.error(explanation);
         for (const v of group) {
-            console.error(`  static/files/${v.path}${v.kind === 'dir' ? '/' : ''}`);
+            console.error(`    static/files/${v.path}${v.kind === 'dir' ? '/' : ''}`);
         }
         console.error('');
     }
-    console.error('Rename them and run the build again. Accents and non-Latin');
-    console.error('scripts are fine; punctuation with a meaning in URLs is not.\n');
+    console.error('Rename or remove them, then run the build again.\n');
     process.exit(1);
 }
 
