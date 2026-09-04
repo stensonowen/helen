@@ -60,16 +60,16 @@
         <div id="wip" class="section">
             <h2> Works in Progress </h2>
             <Card
-                title="Untitled Paper on the Ethics of Democratic Backsliding"
-                text="Spoiler alert: it's bad."
+                title="Untitled Paper on Marx and Ideology"
+                text="Title redacted for purposes of review."
             />
             <Card
-                title="Untitled Paper on the Ethics of Economic Sanctions (co-authored with Michael Quick)"
-                text="Spoiler alert: they're bad."
+                title="Paper on Democratic Backsliding and Stability"
+                text="Title redacted for purposes of review."
             />
             <Card
-                title="Unjust Compromises without Radical Evil (provisional title)"
-                text="Spoiler alert: they're bad."
+                title="Untitled Paper on Backsliding and Labor Unions"
+                text="Title redacted for purposes of review."
             />
         </div>
     </div>
