@@ -15,7 +15,9 @@
             <p class="text-xl pb-1 dark:text-gray-200">
                 In addition to my academic commitments, I am a member of the editorial board of the Critical Theory Working Group (CTWG). The CTWG is a collective of researchers dedicated to providing resources and open reading groups for collective study of early Critical Theory.
 
-                We also have recently published a journal titled <i>Margin Notes.</i>
+                We publish a journal on the topic titled <i>Margin Notes,</i> as well as 
+                    <a class="text-blue-700 hover:underline" href="https://rss.com/podcasts/critique-of-the-podcast-form/"
+                    >host a podcast on the topic</a> entitled <i>Critique of the Podcast Form.</i>
 
                 For more information, please visit the CTWG
                 <span class="text-xl py-1">

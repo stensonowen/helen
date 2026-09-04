@@ -1,6 +1,6 @@
 <script lang="ts">
     import { base } from '$app/paths';
-    import portrait from '../assets/peter4.webp'
+    import portrait from '../assets/GWX.jpg'
 </script>
 
 <div class="container mx-auto">
@@ -8,14 +8,15 @@
 
         <!-- ABOUT -->
         <div id="about" class="section">
-            <img class="w-1/5 float-left mr-4 mb-4 rounded-lg" src={portrait} alt="peter griffin reading a book" />
+            <img class="w-1/5 float-left mr-4 mb-4 rounded-lg" src={portrait} alt="Playing the bass" />
             <h2> About Helen </h2>
             <p class="text-xl pb-1 dark:text-gray-200">
                 PhD student and Graduate TA at the
                 <a class="text-blue-700 hover:underline" href="https://philosophy.arizona.edu/person/samuel-thomas"
-                >University of Arizona</a>.
-                </p> <p class="text-xl py-1">
-                Research interests include legal epistemology, linguistics, critical theory, and European history.
+                >University of Arizona</a>,
+                and an adjunct in Political Science at <a class="text-blue-700 hover:underline" href="https://www.pima.edu/"
+                >Pima Community College</a>.
+                My main areas of study are in political philosophy and 19th century philosophy. I additionally have areas of concentration in environmental ethics, critical theory, and philosophy of law.
             </p>
         </div>
 

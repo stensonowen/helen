@@ -1,5 +1,5 @@
 <script lang="ts">
-    import logo from '../assets/peter1.webp'
+    import logo from '../assets/Sketch.jpg'
     import PhilPeople from '$lib/philpeople.svelte'
     import { base } from '$app/paths';
     import '@fortawesome/fontawesome-free/css/all.min.css'
@@ -79,7 +79,7 @@
         <PhilPeople />{#if withLabels}PhilPeople{/if}
     </a>
     <a class="flex items-center gap-2 hover:text-blue-500 transition-colors duration-200"
-        href="mailto:samthomas@arizona.edu" aria-label="email link"
+        href="mailto:samuelthomas@arizona.edu" aria-label="email link"
         onclick={() => (open = false)}>
         <i class="fa-regular fa-envelope"></i>{#if withLabels}email{/if}
     </a>
@@ -111,7 +111,7 @@
             <!-- Left -->
             <div class="flex items-center pl-4">
                 <a class="cursor-pointer" href={`${base}/`} onclick={() => (open = false)}>
-                    <img class="h-10 object-cover" src={logo} alt="peter griffin standing">
+                    <img class="h-10 object-cover" src={logo} alt="a self portrait doodled in my moleskin">
                 </a>
             </div>
 
@@ -119,7 +119,7 @@
             <div class="flex items-center justify-center px-2">
                 <a class="text-gray-200 cursor-pointer text-lg xl:text-2xl whitespace-nowrap"
                     href={`${base}/`} onclick={() => (open = false)}>
-                    Helenic Philosophy
+                    Helen Eleonora Thomas
                 </a>
             </div>
 

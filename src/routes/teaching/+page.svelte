@@ -17,6 +17,11 @@
         <div id="instructor" class="section">
             <h2> Courses Taught <span class="subtitle">(as Instructor of Record)</span> </h2>
             <Card
+                title="POS 203 - Introduction to Political Ideas"
+                date="Spring 2026, Fall 2026"
+                text="Survey course covering the history of political thought from Plato to the present day."
+            />
+            <Card
                 title="PHIL265 - Twentieth Century Continental Philosophy"
                 date="Fall 2024"
                 text="The twentieth century saw massive changes in sociopolitical organization, technology, and social mores. In this course, students will examine with different philosophical perspectives on these shifts, and engage with topics such as the relationship between the State and civil society, the limits of the law in constraining the State, the way that new technological developments shape our relation to the world, and how we should act in a world that had lost faith in God."
@@ -28,7 +33,7 @@
             />
             <Card
                 title="PHIL263 - From Hegel to Nietzsche: 19th Century Philosophy"
-                date="Spring 2024, Spring 2025"
+                date="Spring 2024, Spring 2025, Spring 2026"
                 text="Survey of influential 19th century philosophers, including Hegel, Marx, J. S. Mill, Kierkegaard, and Nietzsche. Their views on the individual and society, and human nature."
             />
             <Card
