@@ -10,6 +10,7 @@
         { href: `${base}/research`, label: 'research' },
         { href: `${base}/teaching`, label: 'teaching' },
         { href: `${base}/ctwg`, label: 'ctwg' },
+        { href: `${base}/browse`, label: 'files' },
     ];
 
     let open = $state(false);

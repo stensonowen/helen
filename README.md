@@ -191,7 +191,8 @@ When you're finished, click back into the Node.js command prompt and press
 | Wrapper shared by every page | `src/routes/+layout.svelte` |
 | Global styles and colours | `src/app.css`, `tailwind.config.ts` |
 | Images used inside pages | `src/assets/` |
-| Files served as-is (e.g. the favicon, PDFs) | `static/` |
+| Documents on the Files page | `static/files/` — see [below](#adding-documents-to-the-files-page) |
+| Other files served as-is (e.g. the favicon) | `static/` |
 
 A page's URL comes from its folder name: `src/routes/about/+page.svelte` is served
 at `/about`. To add a page, make a new folder with a `+page.svelte` inside it, then add
@@ -215,6 +216,56 @@ On the longer pages, the "Contents" sidebar and the sections it lists are matche
 The entry then bolds itself whenever that section is on screen. If the two ids don't
 match, `npm run build` fails and names the one that has no section, so a mismatch
 can't reach the live site.
+
+### Adding documents to the Files page
+
+The **files** link in the navigation bar is a browsable index of the `static/files/`
+folder. Nothing in it is written by hand: drop a PDF into that folder and it appears
+on the page, with its size beside it. Delete it and it's gone. Sub-folders become
+sub-pages, nested as deep as you like.
+
+```
+static/files/
+    cv.pdf                       -->  shown on  /browse
+    syllabi/
+        Phil 101, fall 2025.pdf  -->  shown on  /browse/syllabi
+```
+
+The listing pages live at `/browse`, and the documents themselves are served from
+`/files/`. So `cv.pdf` above is a real, linkable address —
+`https://stensonowen.github.io/helen/files/cv.pdf` — that you can paste into a page
+or send to someone. It keeps working as long as you don't rename the file.
+
+The folder starts out with a single empty `.gitkeep` file in it. That is only there
+so Git keeps track of an otherwise empty folder; ignore it, and don't delete it.
+
+Two things worth knowing:
+
+**`npm run dev` reads the folder once, when it starts.** Add or remove a document
+while it's running and the listing won't notice. Press <kbd>Ctrl</kbd>+<kbd>C</kbd>
+in that window and run it again.
+
+**Names are checked when the site is built.** An unusable one stops the build with a
+message naming the file, rather than quietly leaving it off the page. Documents can
+be called almost anything:
+
+| | Rule |
+| --- | --- |
+| **Files** | Any name, as long as it has no `#` `?` `%` `&` `=` `+` `\` in it |
+| **Sub-folders** | Letters, digits, spaces, and `.` `-` `_` `’`, starting with a letter or digit |
+
+So `Smith (2024), draft.pdf`, `café.pdf`, `报告.pdf` and `Anna’s copy.pdf` are all
+fine as documents. The handful of banned characters mean something specific in a web
+address, so a link to such a file would silently point at the wrong place.
+
+Sub-folders are held to a stricter rule because a folder name becomes part of the
+address itself, where a few more characters are reserved. If a name is rejected,
+rename it and build again — the message tells you which one and why.
+
+One oddity worth knowing about, because the error looks like nonsense when you hit
+it: a file that came from a Mac can store an accent in a way that *looks* identical
+but doesn't work in a web address. The build says so and names the file; renaming it,
+retyping the accented letters yourself, is the whole fix.
 
 ---
 
